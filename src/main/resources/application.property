@@ -1,0 +1,101 @@
+#Database Connection Information
+app.database.url=jdbc:mysql://172.20.2.71:3306/karaokedb
+app.database.username=client
+app.database.password=123456
+
+# sql stament for project
+dnb.gcs.sql.getUserAccount 			= SELECT userid, email, nickname, phone, address, contact_name, country, city, roleid FROM karaokedb.user where userid = ?
+dnb.gcs.karanet.sql.getInfToLogin	= SELECT userid, email, nickname, phone, address, contact_name, country, city, roleid FROM karaokedb.user where nickname = ? and password = ?
+dnb.gcs.sql.updateUserWithPass 		= UPDATE karaokedb.user SET contact_name = ?, email = ?, phone = ?, address = ?, country = ?, city = ?, password = ? WHERE nickname = ?
+dnb.gcs.sql.createFacility 			= INSERT INTO karaokedb.facilities (name, address, city, description, userid,readed,locationId) VALUE (?,?,?,?,?,0,?) 
+#dnb.gcs.sql.updateFacility 		= UPDATE karaokedb.facilities SET name = ?, address = ?, city = ?, country = ?, description = ?, status = ? WHERE userid = ? and facilityid = ? 
+dnb.gcs.sql.updateFacility			= UPDATE karaokedb.facilities SET name = ?,  address = ?, city = ?, description = ?, status = ?, locationId = ? WHERE facilityid = ?
+dnb.gcs.sql.getListFacility 		= SELECT faci.facilityid, faci.name, address, final_rating, city, country, description, status,typ.room_amount,faci.locationId FROM karaokedb.facilities  faci inner join karaokedb.room_type typ on typ.facilityid = faci.facilityid WHERE faci.isdelete = 0 and userid = ? group by faci.facilityid 
+dnb.gcs.sql.deleteFacility			= UPDATE karaokedb.facilities SET isdelete = 1 WHERE facilityid = ?
+dnb.gcs.sql.getListRoomByUser 		= SELECT * FROM karaokedb.rooms where facilityid in( select facilityid from karaokedb.facilities where userid = ? )
+dnb.gcs.sql.getAllDataHomepage 		= SELECT fa.facilityid, final_rating, address, name,room_type1.room_available_amount,fi.image_data,temp.a AS number_image,tempb.number_comment FROM (facilities fa INNER JOIN (SELECT facilityid, MAX(room_available_amount) AS room_available_amount FROM room_type GROUP BY facilityid) room_type1 INNER JOIN facility_image fi INNER JOIN (SELECT facilityid, COUNT(facility_imageid) AS a FROM facility_image GROUP BY facilityid) temp ON fa.facilityid = room_type1.facilityid  AND fa.facilityid = temp.facilityid AND fa.facilityid = fi.facilityid AND fi.islogo = 1 AND fa.isdelete=0 AND fa.status = 2) LEFT JOIN (SELECT facilityid,COUNT(commentid) AS number_comment FROM comment GROUP BY facilityid) tempb ON fa.facilityid = tempb.facilityid ORDER BY fa.create_time DESC LIMIT 138;
+dnb.gcs.sql.getListRoomType 		= SELECT * FROM karaokedb.room_type WHERE facilityid in( select facilityid from karaokedb.facilities where userid = ? )
+dnb.gcs.sql.getDataBookingPage 		= SELECT FacilityID, Name, Address, FinalRating, City, Country, Description, Status FROM karaokedb.facilities WHERE FacilityID=?;
+dnb.gcs.sql.updateUserWithoutPass 	= UPDATE karaokedb.user SET contact_name = ?, email = ?, phone = ?, address = ?, country = ?, city = ? WHERE nickname = ?
+dnb.gcs.sql.checkExistAccount       = SELECT contact_name FROM karaokedb.user WHERE nickname = ?
+dnb.gcs.sql.createUser              = INSERT INTO karaokedb.user (nickname, email, contact_name,phone, password, roleid) VALUE (?,?,?,?,?,3) 
+dnb.gcs.sql.createProvider			= INSERT INTO karaokedb.user (email, password, nickname, phone, address, avatarid, contact_name, country, city, roleid) VALUE (?,?,?,?,?,null,?,?,?,2) 
+dnb.gcs.sql.checkNicknameExits		= SELECT count(*) FROM karaokedb.user WHERE nickname = ?;
+dnb.gcs.sql.registerProvider		= INSERT INTO karaokedb.facilities (name, address, city, country, description, userid,readed,locationId) VALUE (?,?,?,?,?, (SELECT userid FROM karaokedb.user where nickname = ?),0,?)
+dnb.gcs.sql.getSearchListByAll 		= SELECT * FROM facilities fa INNER JOIN (SELECT facilityid, MAX(room_available_amount) AS room_available_amount FROM room_type GROUP BY facilityid) room_type1  INNER JOIN facility_image fi ON fa.facilityid = room_type1.facilityid  AND fa.facilityid = fi.facilityid AND fi.islogo = 1 AND fa.isdelete=0 AND fa.status = 2 WHERE fa.name LIKE ? AND fa.locationId=?;
+dnb.gcs.sql.getSearchListByAllAll   = SELECT * FROM facilities fa INNER JOIN (SELECT facilityid, MAX(room_available_amount) AS room_available_amount FROM room_type GROUP BY facilityid) room_type1  INNER JOIN facility_image fi ON fa.facilityid = room_type1.facilityid  AND fa.facilityid = fi.facilityid AND fi.islogo = 1 AND fa.isdelete=0 AND fa.status = 2 WHERE fa.name LIKE ?;
+dnb.gcs.sql.getBookingGeneralInfo   = SELECT f.facilityid, f.name, f.address, fi.image_data, f.description, f.final_rating,(SELECT u.phone FROM karaokedb.user u JOIN karaokedb.facilities f ON u.userid = f.userid WHERE f.facilityid = ?) AS phone FROM facilities f JOIN facility_image fi ON f.facilityid = fi.facilityid AND fi.islogo = 1 AND f.facilityid =?;
+dnb.gcs.sql.getRoomTypeCbb			= SELECT room_typeid,facilityid,type_name,cost,room_amount,room_available_amount FROM room_type WHERE facilityid=? AND isroom_type_delete = 0;
+dnb.gcs.sql.getService				= SELECT fs.serviceid,fsc.service_name, fsc.service_icon FROM facility_service_category fsc JOIN facility_service fs ON fsc.facility_service_cateid = fs.serviceid WHERE fs.isDeleted = 0 AND fs.facilityid = ?;
+dnb.gcs.sql.getSlider				= SELECT f.facilityid, fi.image_data, f.name FROM facilities f JOIN facility_image fi WHERE f.facilityid = fi.facilityid AND fi.islogo = 1 AND f.isdelete = 0 LIMIT 4;
+dnb.gcs.sql.getFacilityImages		= SELECT image_data FROM facility_image WHERE facilityid=?;
+dnb.gcs.sql.getBookingComment		= SELECT c.commentid,u.contact_name, c.content, c.ratingid FROM comment c JOIN user u ON u.userid=c.customerid WHERE c.facilityid=? ORDER BY c.commentid DESC;
+dnb.gcs.sql.insertBookingData		= INSERT INTO karaokedb.booking (start_time, contact_name, phone, customer_note,isaccept, customerid,facilityid,room_typeid,readed) VALUE (?,?,?,?,1,?,?,?,0);
+dnb.gcs.sql.insertBookingComment	= INSERT INTO karaokedb.comment (customerid, facilityid, content, ratingid,status) VALUE (?,?,?,?,0);
+dnb.gcs.sql.searchFacility			= SELECT * FROM facilities fa INNER JOIN (SELECT facilityid, MAX(room_available_amount) AS room_available_amount FROM room_type GROUP BY facilityid) room_type1  INNER JOIN facility_image fi ON fa.facilityid = room_type1.facilityid  AND fa.facilityid = fi.facilityid AND fi.islogo = 1 AND fa.isdelete=0 AND fa.status = 2 AND fa.locationId = ?;
+dnb.gcs.sql.getPopularFacility		= SELECT fa.facilityid, final_rating, address, name,room_type1.room_available_amount,fi.image_data,temp.a AS number_image,tempb.number_comment FROM (facilities fa INNER JOIN (SELECT facilityid, MAX(room_available_amount) AS room_available_amount FROM room_type GROUP BY facilityid) room_type1 INNER JOIN facility_image fi  INNER JOIN (SELECT facilityid, COUNT(facility_imageid) AS a FROM facility_image GROUP BY facilityid) temp ON fa.facilityid = room_type1.facilityid  AND fa.facilityid = temp.facilityid AND fa.facilityid = fi.facilityid AND fi.islogo = 1 AND fa.isdelete=0 AND fa.status = 2) LEFT JOIN (SELECT facilityid,COUNT(commentid) AS number_comment FROM comment GROUP BY facilityid) tempb ON fa.facilityid = tempb.facilityid ORDER BY final_rating DESC LIMIT 101;
+dnb.gcs.sql.getMostViewFacility		= SELECT fa.facilityid, final_rating, address, name,room_type1.room_available_amount,fi.image_data,temp.a AS number_image,tempb.number_comment FROM ((facilities fa  INNER JOIN (SELECT facilityid, MAX(room_available_amount) AS room_available_amount FROM room_type GROUP BY facilityid) room_type1  INNER JOIN facility_image fi  INNER JOIN (SELECT facilityid, COUNT(facility_imageid) AS a FROM facility_image GROUP BY facilityid) temp ON fa.facilityid = room_type1.facilityid  AND fa.facilityid = temp.facilityid AND fa.facilityid = fi.facilityid AND fi.islogo = 1 AND fa.isdelete=0 AND fa.status = 2) LEFT JOIN (SELECT facilityid,COUNT(commentid) AS number_comment FROM comment GROUP BY facilityid) tempb ON fa.facilityid = tempb.facilityid) LEFT JOIN (SELECT facilityid,COUNT(bookingid) AS number_booking FROM booking GROUP BY facilityid) tala ON tala.facilityid = fa.facilityid ORDER BY number_booking DESC LIMIT 120;
+#administrator 
+dnb.gcs.sql.getAllFacility			= SELECT faci.FacilityID,faci.name,faci.address,faci.city,faci.description,faci.status,faci.isdelete, faci.locationId,usr.email,usr.phone FROM karaokedb.facilities faci inner join karaokedb.user usr on faci.userid = usr.userid
+dnb.gcs.sql.getAllUser				= SELECT nickname,contact_name,password,email,phone,address,country,city,isdelete FROM karaokedb.user where roleid =?
+dnb.gcs.sql.deleteUser				= UPDATE karaokedb.user SET isdelete = 1 WHERE nickname = ?
+dnb.gcs.sql.getDataViewBooking		= SELECT bookingid, start_time, duration, contact_name, phone, customer_note, facility_note, isaccept, customerid, b.facilityid, type_name FROM karaokedb.booking b inner join karaokedb.room_type r on b.room_typeid = r.room_typeid WHERE b.facilityid IN (SELECT facilityid FROM karaokedb.facilities WHERE userid = ? and status = 2 and isdelete = 0) AND b.start_time >= current_date();
+dnb.gcs.sql.insertImage				= INSERT INTO karaokedb.facility_image(FacilityID,ImageName,ImageSize,ImageType,image_data,islogo) values(?,?,?,?,?,?)
+dnb.gcs.sql.getMaxFacilityId 		= SELECT Max(facilityid) FROM karaokedb.facilities WHERE userid in (SELECT userid from karaokedb.user WHERE nickname =?)
+dnb.gcs.sql.getDataViewReport		= SELECT ord.bookingid,ord.contact_name, ord.phone, ord.customer_note,faci.name,roomTyp.type_name,ord.start_time FROM karaokedb.booking ord inner join karaokedb.facilities faci inner join karaokedb.room_type roomTyp on roomTyp.room_typeid = ord.room_typeid and ord.facilityid = faci.facilityid
+dnb.gcs.sql.confirmListBookingItem	= UPDATE karaokedb.booking SET isaccept = 2 WHERE bookingid IN (:listbookingid)
+dnb.gcs.sql.rejectListBookingItem	= UPDATE karaokedb.booking SET isaccept = 3 WHERE bookingid IN (:listbookingid)
+dnb.gcs.sql.confirmBookingItem		= UPDATE booking SET isaccept = 2 WHERE bookingid = ?
+dnb.gcs.sql.rejectBookingItem		= UPDATE booking SET isaccept = 3 WHERE bookingid = ?
+dnb.gcs.sql.getBookingByFacility	= SELECT bookingid, start_time, duration, contact_name, phone, customer_note, facility_note, isaccept, customerid, b.facilityid, type_name FROM karaokedb.booking b inner join karaokedb.room_type r on b.room_typeid = r.room_typeid WHERE b.facilityid = ? AND b.start_time >= current_date();
+dnb.gcs.sql.insertTypRoom			= INSERT INTO karaokedb.room_type(facilityid,type_name,room_amount,room_available_amount) values(?,?,?,?)
+dnb.gcs.sql.updateRoomTyp			= UPDATE karaokedb.room_type SET room_amount = ? WHERE facilityid =?
+dnb.gcs.sql.updateRoomAvailable		= UPDATE karaokedb.room_type SET room_available_amount = room_available_amount - 1 WHERE room_available_amount > 0 AND room_typeid = (SELECT room_typeid FROM karaokedb.booking WHERE bookingid= ?);
+dnb.gcs.sql.insertNofitication		= INSERT into karaokedb.nofitication(userId,type,changed) values(?,?,?)
+dnb.gcs.sql.getMaxUsrId				= SELECT Max(userid) from karaokedb.user
+dnb.gcs.sql.getBookingToShowNofi	= SELECT distinct ord.bookingid,ord.customerid,ord.facilityid FROM karaokedb.booking ord inner join karaokedb.nofitication nofi on ord.customerid = nofi.userId WHERE ord.create_time > nofi.created_at and ord.readed = 0 and ord.customerid in(:lstUsrId)
+dnb.gcs.sql.updatedNofitication		= UPDATE karaokedb.booking_nofi SET readed = 1 WHERE bookingid =?
+dnb.gcs.sql.updateTimeInNofi		= UPDATE karaokedb.nofitication SET created_at = ? where userid IN (SELECT customerid FROM karaokedb.booking WHERE bookingid = ?)
+dnb.gcs.sql.getRoomtype				= SELECT * FROM karaokedb.room_type WHERE isroom_type_delete = false AND facilityid IN (SELECT facilityid from karaokedb.facilities WHERE userid = ? AND isdelete = 0);
+dnb.gcs.sql.getServiceByRoomtype	= SELECT s.serviceid, s.service_name FROM karaokedb.room_type_service rs INNER JOIN karaokedb.service s ON rs.serviceid = s.serviceid WHERE rs.room_typeid = ?;
+dnb.gcs.sql.getAllService			= SELECT * FROM karaokedb.service;
+dnb.gcs.sql.getCityCombobox			= SELECT * FROM location
+
+dnb.gcs.sql.insertToBookingNotifi   = INSERT INTO karaokedb.booking_nofi(userId,bookingId,facilityId_ProviderId,type,readed) values(?,?,?,?,?)
+dnb.gcs.sql.getUsrFromBookingId     = SELECT customerid from karaokedb.booking where bookingid in (:lstBookingId)
+dnb.gcs.sql.getAllNotifi			= SELECT distinct bookingId,userId,Type,facilityId_ProviderId FROM karaokedb.booking_nofi where readed = 0 and type =?
+dnb.gcs.sql.updateChangedAfBooking	= UPDATE karaokedb.nofitication SET changed = ? WHERE userId = ?
+dnb.gcs.sql.getInforFromNofi		= SELECT distinct userId,type FROM karaokedb.nofitication WHERE changed = 1
+dnb.gcs.sql.updateTimeInNofitication= UPDATE karaokedb.nofitication SET created_at = ? where userid = ?
+dnb.gcs.sql.deleteRoomtype			= UPDATE karaokedb.room_type SET isroom_type_delete = true WHERE room_typeid = ?
+dnb.gcs.sql.getMaxProviderID		= SELECT Max(userid) from karaokedb.user where roleid = 2
+dnb.gcs.sql.getProviderID			= SELECT userid FROM karaokedb.user where nickname = ?
+dnb.gcs.sql.getFacilityToShowNofi	= SELECT distinct facility.facilityid,facility.userid FROM karaokedb.facilities facility inner join karaokedb.nofitication nofi on facility.userid = nofi.userId WHERE facility.readed = 0 and facility.userid in(:lstUsrId)
+dnb.gcs.sql.updateBookingAfterClick = UPDATE karaokedb.booking set readed = 1 where bookingid =?
+dnb.gcs.sql.updateFacilityAfterClick= UPDATE karaokedb.facilities set readed = 1 WHERE FacilityID =?
+dnb.gcs.sql.getUsrIdFromBooking		= SELECT userid FROM karaokedb.facilities WHERE facilityid =?
+dnb.gcs.sql.getRatingAfterComment	= SELECT AVG(ratingid) as rating FROM karaokedb.comment WHERE FacilityID =?
+dnb.gcs.sql.updateFianlRatingAfCm	= UPDATE karaokedb.facilities set final_rating  = ? WHERE FacilityID =?
+dnb.gcs.sql.updateBookingAfterClick = update karaokedb.booking set readed = 1 where bookingid =?
+dnb.gcs.sql.updateFacilityAfterClick= update karaokedb.facilities set readed = 1 where FacilityID =?
+dnb.gcs.sql.addNewRoomtype			= INSERT INTO karaokedb.room_type (facilityid,type_name,cost,room_amount,room_available_amount) values(?,?,?,?,?);
+dnb.gcs.sql.addRoomtypeService		= INSERT INTO karaokedb.room_type_service (room_typeid, serviceid) VALUES (?,?);
+dnb.gcs.sql.updateRoomtype			= UPDATE karaokedb.room_type SET facilityid = ?, type_name = ?, cost = ?, room_available_amount = ?, room_amount = ? WHERE room_typeid = ?
+dnb.gcs.sql.deleteRoomtypeService 	= DELETE FROM karaokedb.room_type_service WHERE room_typeid = ?
+dnb.gcs.sql.getRoomtypeByID			= SELECT room_typeid, facilityid, type_name, cost, room_amount, room_available_amount FROM karaokedb.room_type WHERE room_typeid = ?
+dnb.gcs.sql.insertUsrAfLoginFb		= INSERT INTO karaokedb.user (nickname,contact_name,roleid) VALUE (?,?,3)
+dnb.gcs.sql.getInfAfterLogin		= SELECT userid, nickname,contact_name, roleid FROM karaokedb.user where nickname = ?
+dnb.gcs.sql.getReportChart 			= select count,thang,fac.facilityid,fac.name from (select karaokedb.booking.bookingid, count(karaokedb.booking.facilityid) as count, month(karaokedb.booking.start_time) AS THANG,  karaokedb.booking.facilityid from karaokedb.booking group by month(karaokedb.booking.start_time), karaokedb.booking.facilityid order by karaokedb.booking.facilityid) t inner join  karaokedb.facilities fac on fac.facilityid = t.facilityid  
+dnb.gcs.sql.getFacilityReport		= SELECT faci.facilityid, faci.name FROM karaokedb.facilities  faci inner join karaokedb.room_type typ on typ.facilityid = faci.facilityid WHERE faci.isdelete = 0 and userid = ? group by faci.facilityid
+dnb.gcs.sql.getFacebookUser			= SELECT userid, email, nickname, phone, address, contact_name, country, city, roleid FROM karaokedb.user where nickname = ?
+dnb.gcs.sql.updateFacebookUser		= UPDATE karaokedb.user SET email = ?, contact_name = ? WHERE nickname = ?
+dnb.gcs.sql.addNewFacebookUser		= INSERT INTO karaokedb.user (email,contact_name,nickname,roleid) VALUES (?,?,?,3);
+dnb.gcs.sql.getFacilityReport		= SELECT faci.facilityid, faci.name FROM karaokedb.facilities  faci inner join karaokedb.room_type typ on typ.facilityid = faci.facilityid WHERE faci.isdelete = 0 and userid = ? group by faci.facilityid
+dnb.gcs.sql.adminReportFacility		= SELECT count(facilityid) as COUNT FROM karaokedb.facilities
+dnb.gcs.sql.adminReportUsr			= SELECT count(case when roleid = 1 then 1 else null end) as provider,count(case when roleid = 2 then 1 else null end) as user from user
+dnb.gcs.sql.checkRemainRoomtype		= SELECT COUNT(room_typeid) FROM room_type WHERE facilityid = (SELECT facilityid FROM room_type WHERE room_typeid=?);
+dnb.gcs.sql.getFacilityService		= SELECT facility_service_cateid, service_name, service_icon FROM karaokedb.facility_service_category WHERE (Created_by = 0 OR Created_by = ?) AND isDeleted = false;
+dnb.gcs.sql.getFacilityServiceUsing	= SELECT serviceid FROM facility_service WHERE facilityid = ? AND isDeleted = false;
+dnb.gcs.sql.updateFacilityService	= INSERT INTO karaokedb.facility_service (facilityid, serviceid) VALUES (?,?);
+dnb.gcs.sql.removeOldService		= UPDATE karaokedb.facility_service SET isDeleted = true WHERE facilityid = ?
+dnb.gcs.sql.addNewService			= INSERT INTO karaokedb.facility_service_category(Created_by,service_name, description) VALUES(?,?,?);
