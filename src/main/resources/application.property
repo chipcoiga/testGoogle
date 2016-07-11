@@ -1,7 +1,7 @@
 #Database Connection Information
-app.database.url=jdbc:mysql://172.20.2.71:3306/karaokedb
-app.database.username=client
-app.database.password=123456
+app.database.url=jdbc:mysql://us-cdbr-iron-east-03.cleardb.net/heroku_1d72ea9fb4ee625
+app.database.username=b2db83b5d3b922
+app.database.password=e810fbd6
 
 # sql stament for project
 dnb.gcs.sql.getUserAccount 			= SELECT userid, email, nickname, phone, address, contact_name, country, city, roleid FROM karaokedb.user where userid = ?
