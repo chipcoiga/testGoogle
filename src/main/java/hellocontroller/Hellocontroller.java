@@ -1,25 +1,40 @@
+
 package hellocontroller;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.util.List;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class Hellocontroller {
-	@RequestMapping("hello")
-	public String helloHeroku(){
-		return "hello";
-	}
-	@ResponseBody
-	@RequestMapping("user")
-	public String helloHeroku() throws ConnectException{
-		JSONObject json = new JSONObject();
-		UserDao administratorService = new UserDao();
-		List<UserModel> lstUser = administratorService.getUser(2);
-		json.put("hihi", lstUser);
-		return Hellocontroller.parseToJsonString(json);
-	}
-	
-	public static String parseToJsonString(JSONObject js) throws ConnectException {
+    @Autowired
+    private UserDao administratorService;
+
+    @RequestMapping("hello")
+    public String helloHeroku() {
+        return "hello";
+    }
+
+    @ResponseBody
+    @RequestMapping("user")
+    public String getUser() throws ConnectException {
+        JSONObject json = new JSONObject();
+        List<UserModel> lstUser = administratorService.getUser(2);
+        json.put("hihi", lstUser);
+        return Hellocontroller.parseToJsonString(json);
+    }
+
+    public static String parseToJsonString(JSONObject js) throws ConnectException {
         String json = "";
         ObjectMapper mapper = new ObjectMapper();
         try {
