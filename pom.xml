@@ -28,7 +28,16 @@
             <artifactId>spring-core</artifactId>
             <version>4.1.4.RELEASE</version>
         </dependency>
- 
+      <dependency>
+  			<groupId>org.springframework</groupId>
+  			<artifactId>spring-beans</artifactId>
+  			<version>4.1.4.RELEASE</version>
+  		</dependency>
+  		<dependency>
+  			<groupId>org.springframework</groupId>
+  			<artifactId>spring-context</artifactId>
+  			<version>4.1.4.RELEASE</version>
+  		</dependency>
         <!-- http://mvnrepository.com/artifact/org.springframework/spring-web -->
         <dependency>
             <groupId>org.springframework</groupId>
