@@ -1,0 +1,46 @@
+	public String hello(Model model){
+		List<ModelM> listModel = new ArrayList<ModelM>();
+		List<ModelM> listModelResult = new ArrayList<ModelM>();
+		
+		ModelM model1 = new ModelM(1, "le", 1);
+		listModel.add(model1);
+//		ModelM model2 = new ModelM(1, "lea",2);
+//		listModel.add(model2);
+//		ModelM model3 = new ModelM(1, "lea",3);
+//		listModel.add(model3);
+//		ModelM model4 = new ModelM(4, "le", 4);
+//		listModel.add(model4);
+		
+		List<Integer> index = new ArrayList<Integer>();
+		
+		ModelM tmp = new ModelM();
+		for(int i=0;i<listModel.size();i++){
+			tmp = new ModelM();
+			if(!index.contains(i)){
+				tmp = listModel.get(i);
+				index.add(i);
+				for(int j=i;j<listModel.size();j++){
+					if(!index.contains(j)){
+						if(listModel.get(j).getId() == tmp.getId()){
+							index.add(j);
+							if(listModel.get(j).getName().equals(tmp.getName())){
+								tmp.setAge(tmp.getAge()+listModel.get(j).getAge());
+							}else{
+								tmp = listModel.get(j);
+							}
+						}
+					}			
+				}
+				if(tmp!=null){
+					listModelResult.add(tmp);
+				}
+			}		
+		}
+		System.out.println(listModelResult.size());
+		for(ModelM modelM : listModelResult){
+			System.out.println("id:"+modelM.getId()+" - name:"+modelM.getName()+" - age:"+modelM.getAge());
+		}
+		
+		model.addAttribute("greeting", "Hello Spring MVC");
+		return "helloword";
+	}
