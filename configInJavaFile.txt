@@ -1,0 +1,1 @@
+http://kielczewski.eu/2013/11/spring-mvc-without-web-xml-using-webapplicationinitializer/
