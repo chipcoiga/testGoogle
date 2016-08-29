@@ -1,1 +1,2 @@
 http://kielczewski.eu/2013/11/spring-mvc-without-web-xml-using-webapplicationinitializer/
+https://www.luckyryan.com/2013/02/07/migrate-spring-mvc-servlet-xml-to-java-config/
